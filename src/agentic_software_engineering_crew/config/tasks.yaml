@@ -1,0 +1,518 @@
+analyse_requirements_task:
+  description: >
+    Analyse the following software requirement:
+
+    {software_requirement}
+
+    Produce a clear, scoped, and testable requirement analysis for a small but
+    professional Flask web application.
+
+    Include:
+    - Problem summary
+    - Main users and their goals
+    - Main features
+    - User stories
+    - Acceptance criteria
+    - Functional requirements
+    - Non-functional requirements
+    - Assumptions
+    - Out-of-scope items for this version
+    - Risks, ambiguities, or missing details
+
+    Keep the scope realistic for a first generated version, but make the requirements
+    detailed enough to guide professional implementation.
+  expected_output: >
+    A structured markdown requirement analysis document with clear acceptance criteria.
+  agent: requirement_analyst
+  output_file: outputs/requirements_analysis.md
+
+
+design_architecture_task:
+  description: >
+    Based on the requirement analysis, design a clean, maintainable Python Flask
+    application architecture.
+
+    The generated application must include:
+    - Flask backend routes
+    - Modular backend files
+    - A professional browser-based user interface
+    - Static CSS in static/css/style.css
+    - A separate JavaScript file in static/js/app.js
+    - JavaScript fetch calls from the frontend to the backend API
+    - Pytest tests
+    - A requirements.txt file
+    - A README explaining how to run the generated app
+
+    Required generated file structure:
+    - app.py
+    - models.py
+    - routes.py
+    - requirements.txt
+    - README.md
+    - templates/index.html
+    - static/css/style.css
+    - static/js/app.js
+    - tests/test_app.py
+
+    Important architecture rules:
+    - app.py should create and configure the Flask app, serve the frontend route,
+      register API routes, and run the app.
+    - models.py should contain data models, constants/enums if needed, in-memory
+      data structures if needed, and serialization helpers.
+    - routes.py should contain API route handlers, validation logic, and application
+      state operations.
+    - templates/index.html should contain page structure only.
+    - static/css/style.css should contain styling only.
+    - static/js/app.js should contain frontend behaviour, fetch calls, DOM updates,
+      event handling, and message display logic.
+    - Do not design a database unless the requirement explicitly asks for persistence.
+    - Use in-memory storage for the first version unless persistence is explicitly required.
+    - Keep the first version simple but easy to extend later.
+
+    Include:
+    - Proposed technology stack
+    - Recommended file structure
+    - Main modules and responsibilities
+    - Data model or data structure
+    - API endpoints with methods, request bodies, response examples, and status codes
+    - Frontend behaviour
+    - Frontend/backend integration plan
+    - Validation strategy
+    - Error handling strategy
+    - Testing strategy
+    - Known limitations
+  expected_output: >
+    A structured markdown software architecture document that exactly matches the
+    required generated file structure and the analysed requirement.
+  agent: software_architect
+  context:
+    - analyse_requirements_task
+  output_file: outputs/architecture.md
+
+
+generate_backend_files_task:
+  description: >
+    Generate the backend implementation for the Flask application based on the
+    requirement analysis and architecture.
+
+    You must use the File Writer Tool to create real files inside outputs/generated_app.
+
+    Required files to create:
+    - app.py
+    - models.py
+    - routes.py
+    - requirements.txt
+    - README.md
+
+    Completion rules:
+    - You must call the File Writer Tool once for every required file.
+    - Do not finish the task by only saying what you will do.
+    - Do not use phrases such as "I will create", "I'll generate", or "Let me create"
+      as the final answer unless the files have already been written.
+    - Your final answer must list every file that was actually written.
+    - If a file cannot be written, clearly report the failure.
+    - The task is not complete unless all required backend files have been written
+      into outputs/generated_app.
+
+    Backend quality requirements:
+    - Use Flask.
+    - Use clear, modular, maintainable Python code.
+    - Keep route logic in routes.py, not duplicated across files.
+    - Keep model definitions, constants, data structures, and serialization helpers in models.py.
+    - Keep app creation and app startup in app.py.
+    - Use in-memory storage unless persistence is explicitly required.
+    - Use simple functions with clear responsibilities.
+    - Include input validation for every endpoint that accepts user data.
+    - Return meaningful JSON error responses.
+    - Return appropriate HTTP status codes such as 200, 201, 400, 404, and 409 where appropriate.
+    - Serve the frontend template at the root route "/".
+    - Make the app runnable with: python app.py.
+    - The generated code must be importable by pytest without starting the Flask server.
+    - The code must avoid global side effects that make tests unreliable.
+    - Include a safe way for tests to reset in-memory state if needed.
+    - The requirements.txt file must include Flask>=3.0.0.
+    - The requirements.txt file must include pytest>=8.0.0 so the generated tests can run.
+    - The README.md file must explain the app purpose, setup steps, how to run the app,
+      how to run tests, main API endpoints, current limitations, and future improvements.
+    - Do not only return markdown. You must write the real files using the File Writer Tool.
+
+    Backend endpoint requirements:
+    - Provide JSON API endpoints based on the architecture.
+    - Ensure endpoint paths exactly match what the frontend and tests will use.
+    - Implement only the features required by the analysed software requirement.
+    - If the application includes fixed values such as statuses, categories, priorities,
+      roles, types, or states, define them clearly in the backend and validate them.
+    - If no valid item, record, entity, or action target is available, return a clear JSON message.
+    - Do not hard-code business rules from unrelated example projects.
+
+    File responsibility rules:
+    - app.py:
+      - Create Flask app.
+      - Register API routes from routes.py.
+      - Serve templates/index.html at "/".
+      - Include if __name__ == "__main__": app.run(...).
+    - models.py:
+      - Define the core model/classes or simple data structures required by the app.
+      - Define fixed values, constants, or enums if the requirement needs them.
+      - Provide serialization helpers if useful.
+      - Provide a test reset helper if in-memory state is used.
+    - routes.py:
+      - Define API endpoints.
+      - Store and manipulate in-memory data if persistence is not required.
+      - Validate requests.
+      - Return JSON responses.
+  expected_output: >
+    A markdown summary confirming that the File Writer Tool was used to create:
+    - app.py
+    - models.py
+    - routes.py
+    - requirements.txt
+    - README.md
+
+    The task is not complete unless all five files have been written into
+    outputs/generated_app.
+  agent: backend_engineer
+  context:
+    - analyse_requirements_task
+    - design_architecture_task
+  output_file: outputs/backend_summary.md
+
+
+generate_frontend_files_task:
+  description: >
+    Generate a professional frontend for the Flask application based on the
+    requirement analysis, architecture, and generated backend.
+
+    You must use the File Writer Tool to create real files inside outputs/generated_app.
+
+    Required files to create:
+    - templates/index.html
+    - static/css/style.css
+    - static/js/app.js
+
+    Completion rules:
+    - You must call the File Writer Tool once for every required frontend file.
+    - Do not finish the task by only saying what you will do.
+    - Do not use phrases such as "I will create", "I'll generate", or "Let me create"
+      as the final answer unless the files have already been written.
+    - Your final answer must list every file that was actually written.
+    - If a file cannot be written, clearly report the failure.
+    - The task is not complete unless all required frontend files have been written
+      into outputs/generated_app.
+
+    Frontend file rules:
+    - index.html must contain semantic HTML structure only.
+    - Do not place all JavaScript inline inside index.html.
+    - Put frontend JavaScript logic in static/js/app.js.
+    - Put all styling in static/css/style.css.
+    - index.html must load the CSS file using:
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    - index.html must load the JavaScript file using:
+      <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    Frontend quality requirements:
+    - The UI must look like a professional web application, not a basic demo page.
+    - Use a clear header with title and short description.
+    - Use a clean main layout that matches the generated application's purpose.
+    - Use summary cards, panels, tables, forms, or lists only when appropriate for the requirement.
+    - Use clear visual indicators for important states, counts, records, or actions if the requirement needs them.
+    - Use a visible message area for success and error messages.
+    - Use consistent spacing, typography, button styling, and visual hierarchy.
+    - Use responsive layout suitable for desktop and tablet screens.
+    - Avoid browser alert() for normal success/error feedback unless confirmation is genuinely needed.
+    - Do not hard-code UI labels, statuses, or actions from unrelated example projects.
+
+    Frontend functionality requirements:
+    - Use fetch() in static/js/app.js to call the Flask API endpoints.
+    - On page load, call the relevant backend endpoint to load the main data required by the app.
+    - Create/add/submit actions must call the correct backend endpoint.
+    - Update/edit/delete/action buttons must call the correct backend endpoint if required.
+    - Reset/clear/process/assign actions must call the correct backend endpoint only if required by the specification.
+    - After every successful state-changing action, refresh the relevant data from the backend.
+    - If the generated application includes fixed values such as statuses, categories,
+      roles, priorities, types, or states, frontend option values must exactly match
+      backend allowed values.
+    - If the backend returns an error, show the error message clearly in the page.
+    - Frontend endpoint paths must exactly match backend route paths.
+    - Implement only the controls and behaviours required by the analysed software requirement.
+  expected_output: >
+    A markdown summary confirming that the File Writer Tool was used to create:
+    - templates/index.html
+    - static/css/style.css
+    - static/js/app.js
+
+    The task is not complete unless all three files have been written into
+    outputs/generated_app.
+  agent: frontend_engineer
+  context:
+    - analyse_requirements_task
+    - design_architecture_task
+    - generate_backend_files_task
+  output_file: outputs/frontend_summary.md
+
+
+generate_test_files_task:
+  description: >
+    Create pytest tests for the generated Flask application.
+
+    You must use the File Writer Tool to create real files inside outputs/generated_app.
+
+    Required file to create:
+    - tests/test_app.py
+
+    Completion rules:
+    - You must call the File Writer Tool to create tests/test_app.py.
+    - Do not finish the task by only saying what you will do.
+    - Do not use phrases such as "I will create", "I'll generate", or "Let me create"
+      as the final answer unless the test file has already been written.
+    - Your final answer must confirm that tests/test_app.py was actually written.
+    - If the file cannot be written, clearly report the failure.
+    - The task is not complete unless tests/test_app.py has been written into
+      outputs/generated_app.
+    - Do not require a specific fetch syntax if the frontend uses a valid API helper or wrapper function.
+    - It is acceptable if endpoint paths are used through helper functions such as apiCall().
+    - Frontend integration tests should verify endpoint paths, required functions, DOM IDs, and static asset references.
+
+    Test quality requirements:
+    - Use Flask's test client.
+    - Tests must be deterministic and independent.
+    - Reset in-memory state between tests if the generated backend supports it.
+    - Cover the main success paths defined by the requirement analysis.
+    - Cover common validation errors.
+    - Cover important edge cases.
+    - Keep tests executable with: pytest.
+    - Do not only return markdown. You must write the real test file using the File Writer Tool.
+    - Do not write tests for features that are not required by the analysed requirement.
+
+    Backend/API test requirements:
+    - Test that GET / returns 200.
+    - Test the main list/read endpoint if the app has one.
+    - Test the main create/submit endpoint if the app has one.
+    - Test update/edit endpoints if the app has them.
+    - Test delete/remove endpoints if the app has them.
+    - Test action/process endpoints if the app has them.
+    - Test reset/clear endpoints only if the requirement includes them.
+    - Test valid data.
+    - Test invalid data.
+    - Test duplicate/conflict cases if relevant.
+    - Test not-found cases if relevant.
+    - Test fixed value validation if the app includes fixed values such as statuses,
+      categories, roles, priorities, types, or states.
+
+    Frontend static integration test requirements:
+    - Test that templates/index.html exists.
+    - Test that static/css/style.css exists.
+    - Test that static/js/app.js exists.
+    - Test that index.html references static/css/style.css.
+    - Test that index.html references static/js/app.js.
+    - Test that static/js/app.js contains fetch calls to the expected backend endpoints.
+    - Test that user actions required by the specification are represented in the frontend.
+    - If the application includes fixed frontend options, test that those values match
+      the backend allowed values.
+
+    Important:
+    - Do not create weak tests that only check whether files exist.
+    - Do not intentionally write failing syntax.
+    - Ensure the test file itself is valid Python.
+    - Avoid hard-coded assumptions about IDs unless the backend guarantees them.
+    - Prefer using IDs returned by API responses rather than assuming a specific ID.
+  expected_output: >
+    A markdown summary confirming that the File Writer Tool was used to create:
+    - tests/test_app.py
+
+    The task is not complete unless tests/test_app.py has been written into
+    outputs/generated_app.
+  agent: test_engineer
+  context:
+    - analyse_requirements_task
+    - design_architecture_task
+    - generate_backend_files_task
+    - generate_frontend_files_task
+  output_file: outputs/test_summary.md
+
+
+run_and_debug_tests_task:
+  description: >
+    Run the generated pytest test suite and debug the generated application.
+
+    You must use the Test Runner Tool to run:
+    - tests/test_app.py
+
+    Before running tests, use the File Reader Tool to confirm that these files exist
+    and can be read:
+    - app.py
+    - models.py
+    - routes.py
+    - tests/test_app.py
+    - templates/index.html
+    - static/css/style.css
+    - static/js/app.js
+    - requirements.txt
+    - README.md
+
+    If any required file is missing:
+    - Clearly mark the generated app as NOT READY.
+    - Report which file is missing.
+    - Do not claim that tests passed.
+    - Do not claim that the application is ready.
+
+    If tests fail:
+    - Read the pytest output carefully.
+    - Use the File Reader Tool to inspect relevant files such as:
+      - app.py
+      - models.py
+      - routes.py
+      - tests/test_app.py
+      - templates/index.html
+      - static/css/style.css
+      - static/js/app.js
+      - requirements.txt
+      - README.md
+    - Decide whether the backend implementation, frontend integration, or test file
+      should be fixed.
+    - Use the File Writer Tool to rewrite the corrected file.
+    - After rewriting any file, immediately use the File Reader Tool to read the same
+      file again and confirm that the corrected content is present.
+    - After applying any fix, you must rerun pytest using the Test Runner Tool.
+    - The final debugging report must include the real final pytest output after the fix.
+    - Do not write "run pytest again" as a final step. You must actually run it.
+    - Make at most three correction attempts.
+
+    Important debugging rules:
+    - You must call the Test Runner Tool at least once unless required files are missing.
+    - Do not finish the task by only saying what you will do.
+    - Do not use phrases such as "I will run", "I'll help", or "Let me start" as the final answer.
+    - The final answer must be the actual debugging report.
+    - After applying any fix, you must rerun pytest using the Test Runner Tool.
+    - The final report must include the real final pytest output.
+    - Do not write "run pytest again" as a final step. You must actually run it.
+    - Do not blindly weaken tests just to make them pass.
+    - Prefer fixing the application if it violates the requirement.
+    - Prefer fixing the test only if the application behaviour is reasonable and the
+      test expectation is too strict or inconsistent.
+    - Keep fixes minimal and explain what changed.
+    - If pytest fails, you must inspect both the failing test file and the related
+      implementation file before applying any fix.
+    - The task must not claim the app is fixed unless pytest return code is 0.
+    - If pytest still fails after all correction attempts, clearly mark the generated
+      app as NOT READY.
+    - If tests pass, still inspect frontend files and backend routes to check that
+      frontend fetch URLs match backend API endpoints.
+    - If the generated application includes fixed values such as statuses, categories,
+      roles, priorities, types, or states, verify that frontend option values exactly
+      match the backend allowed values.
+
+    Frontend/backend compatibility checks:
+    - Confirm templates/index.html loads static/js/app.js.
+    - Confirm templates/index.html loads static/css/style.css.
+    - Confirm static/js/app.js exists.
+    - Confirm fetch URLs in static/js/app.js match backend route paths.
+    - Confirm that all user actions required by the specification are connected to backend endpoints.
+    - Confirm that forms, buttons, dropdowns, and other interactive controls required by the specification exist.
+    - Confirm that any fixed frontend values such as statuses, categories, roles,
+      priorities, types, or states match backend allowed values.
+    - Confirm frontend success and error messages are displayed in the page.
+
+    Produce a markdown debugging report including:
+    - Initial file existence check
+    - Initial pytest result
+    - Files inspected
+    - Problems found
+    - Fixes applied
+    - Confirmation that rewritten files were re-read
+    - Final pytest result
+    - Whether the generated app is READY or NOT READY
+    - Frontend/backend route compatibility check
+    - Any remaining issues
+  expected_output: >
+    A structured markdown debugging report showing file existence checks, pytest
+    results, fixes applied, frontend/backend compatibility, final test status, and
+    whether the generated app is READY or NOT READY.
+
+    The task is not complete if it only says what will be done. It must include
+    actual results from the Test Runner Tool or a clear missing-file failure.
+  agent: debugging_engineer
+  context:
+    - analyse_requirements_task
+    - design_architecture_task
+    - generate_backend_files_task
+    - generate_frontend_files_task
+    - generate_test_files_task
+  output_file: outputs/debugging_report.md
+
+
+review_generated_application_task:
+  description: >
+    Review the final generated Flask application, frontend, tests, README, and
+    debugging report.
+
+    Before writing the final review, use the File Reader Tool to inspect:
+    - app.py
+    - models.py
+    - routes.py
+    - requirements.txt
+    - README.md
+    - templates/index.html
+    - static/css/style.css
+    - static/js/app.js
+    - tests/test_app.py
+
+    Evaluate:
+    - Requirement coverage
+    - Backend correctness
+    - Backend modularity
+    - Frontend quality
+    - Frontend/backend integration
+    - Input validation
+    - Error handling
+    - Test coverage
+    - Pytest/debugging result
+    - Maintainability
+    - Security
+    - Production readiness
+    - Missing edge cases
+
+    Important review rules:
+    - Do not finish the task by only saying what you will do.
+    - Do not use phrases such as "I will review", "I'll inspect", or "Let me start"
+      as the final answer.
+    - The final answer must be the actual code review report.
+    - If any expected file is missing, explicitly report it.
+    - If the debugging report says pytest failed, clearly state that the generated app is NOT READY.
+    - Do not describe the app as successful if tests failed.
+    - Check whether static/js/app.js exists.
+    - Check whether templates/index.html loads static/js/app.js.
+    - Check whether templates/index.html loads static/css/style.css.
+    - Check whether frontend fetch URLs match backend route paths.
+    - Check whether all user actions required by the specification are implemented.
+    - If the generated application includes fixed values such as statuses, categories,
+      roles, priorities, types, or states, check whether frontend values match backend
+      allowed values exactly.
+    - Give practical recommendations, not generic advice.
+    - The review is incomplete if the final answer only says what will be reviewed.
+    - The final answer must include actual findings from inspected files.
+    - If file inspection fails, report the failure and mark the app as NOT READY.
+
+    Also provide:
+    - Final readiness status: READY or NOT READY
+    - How to run the generated application
+    - How to run the tests
+    - Whether the final test result passed or failed
+    - Main strengths
+    - Main weaknesses
+    - Recommended improvements for the next version
+  expected_output: >
+    A structured markdown final code review report with an honest readiness status
+    and clear recommendations.
+
+    The task is not complete if it only says what will be reviewed. It must provide
+    an actual review based on inspected generated files.
+  agent: code_reviewer
+  context:
+    - analyse_requirements_task
+    - design_architecture_task
+    - generate_backend_files_task
+    - generate_frontend_files_task
+    - generate_test_files_task
+    - run_and_debug_tests_task
+  output_file: outputs/code_review.md

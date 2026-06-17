@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Agentic Software Engineering Crew</title>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --bg: #f3f6fb;
+        --card: #ffffff;
+        --text: #172033;
+        --muted: #5f6b7a;
+        --border: #d7deea;
+        --shadow: 0 18px 45px rgba(15, 23, 42, 0.1);
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 100%);
+        color: var(--text);
+      }
+      
+      .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      
+      .container {
+        width: 100%;
+        max-width: 980px;
+        background: var(--card);
+        border-radius: 22px;
+        padding: 42px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+      }
+      
+      .badge {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: #eaf1ff;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+      
+      h1 {
+        margin: 0 0 14px;
+        font-size: 34px;
+        letter-spacing: -0.03em;
+      }
+      
+      .description {
+        max-width: 850px;
+        color: var(--muted);
+        line-height: 1.7;
+        margin-bottom: 28px;
+        font-size: 16px;
+      }
+      
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: #111827;
+      }
+      
+      textarea {
+        width: 100%;
+        min-height: 285px;
+        padding: 18px;
+        font-size: 15px;
+        line-height: 1.6;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        resize: vertical;
+        outline: none;
+        background: #fbfdff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      }
+      
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 22px;
+        flex-wrap: wrap;
+      }
+      
+      button {
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        background: var(--primary);
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+        transition: transform 0.15s, background 0.2s;
+      }
+      
+      button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+      
+      button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      button:disabled:hover {
+        background: var(--primary);
+        transform: none;
+      }
+      
+      .note {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      
+      .footer-note {
+        margin-top: 24px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: var(--muted);
+        font-size: 14px;
+        border: 1px solid #e5e7eb;
+      }
+      
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 24px;
+      }
+      
+      .loading-overlay.show {
+        display: flex;
+      }
+      
+      .loading-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 34px;
+        text-align: center;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+      }
+      
+      .loading-card h2 {
+        margin: 18px 0 10px;
+        font-size: 26px;
+        color: #172033;
+      }
+      
+      .loading-card p {
+        margin: 0 0 22px;
+        color: #5f6b7a;
+        line-height: 1.6;
+      }
+      
+      .spinner {
+        width: 54px;
+        height: 54px;
+        border: 5px solid #dbeafe;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        margin: 0 auto;
+        animation: spin 0.9s linear infinite;
+      }
+      
+      .progress-track {
+        height: 10px;
+        width: 100%;
+        overflow: hidden;
+        background: #e5e7eb;
+        border-radius: 999px;
+        margin: 20px 0 14px;
+      }
+      
+      .progress-bar {
+        height: 100%;
+        width: 42%;
+        background: linear-gradient(90deg, #2563eb, #60a5fa);
+        border-radius: 999px;
+        animation: progressMove 1.25s ease-in-out infinite;
+      }
+      
+      .loading-note {
+        display: block;
+        color: #64748b;
+        font-size: 14px;
+      }
+      
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      
+      @keyframes progressMove {
+        0% {
+          transform: translateX(-120%);
+        }
+        50% {
+          transform: translateX(75%);
+        }
+        100% {
+          transform: translateX(240%);
+        }
+      }
+      
+      @media (max-width: 700px) {
+        .container {
+          padding: 28px;
+        }
+      
+        h1 {
+          font-size: 28px;
+        }
+      
+        .actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+      
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="container">
+        <div class="badge">CrewAI Software Generator</div>
+
+        <h1>Agentic Software Engineering Crew</h1>
+
+        <p class="description">Enter a software requirement below. The CrewAI workflow will analyse the requirement, design the architecture, generate a Flask application, create automated tests, run debugging, review the result, and prepare a downloadable ZIP file.</p>
+
+        <form method="POST" action="/generate" id="generate-form">
+          <label for="software_requirement">Project Requirement</label>
+
+          <textarea name="software_requirement" id="software_requirement">{{ default_requirement }}</textarea>
+
+          <div class="actions">
+            <button type="submit" id="generate-button">Generate Application</button>
+            <span class="note">Generation may take a few minutes depending on model speed and requirement complexity.</span>
+          </div>
+        </form>
+
+        <div class="footer-note">Output includes source code, frontend files, tests, reports, and a downloadable ZIP package.</div>
+      </section>
+    </main>
+
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <h2>Generating your application...</h2>
+        <p>The AI agents are analysing requirements, designing architecture, writing code, creating tests, debugging, and preparing the ZIP file.</p>
+
+        <div class="progress-track">
+          <div class="progress-bar"></div>
+        </div>
+
+        <span class="loading-note">This may take a few minutes. Please keep this page open.</span>
+      </div>
+    </div>
+
+    <script>
+      const generateForm = document.getElementById('generate-form')
+      const generateButton = document.getElementById('generate-button')
+      const loadingOverlay = document.getElementById('loading-overlay')
+      
+      if (generateForm && generateButton && loadingOverlay) {
+        generateForm.addEventListener('submit', function () {
+          loadingOverlay.classList.add('show')
+          loadingOverlay.setAttribute('aria-hidden', 'false')
+      
+          generateButton.disabled = true
+          generateButton.textContent = 'Generating...'
+        })
+      }
+    </script>
+  </body>
+</html>

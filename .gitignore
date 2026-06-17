@@ -1,0 +1,12 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+outputs/*
+!outputs/.gitkeep
+memory/
+*.db
+*.sqlite3
+.DS_Store
+.pytest_cache/
