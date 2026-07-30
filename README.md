@@ -1,175 +1,209 @@
-# Agentic Software Engineering Crew
+Agentic Software Engineering Crew
 
-A CrewAI-based multi-agent software engineering workflow that converts natural-language software requirements into a runnable Flask web application.
+A cloud-deployed, multi-agent software engineering platform that converts natural-language software requirements into a runnable Flask application, automated tests, and a complete set of engineering reports.
 
-The system analyses a user requirement, designs the software architecture, generates backend and frontend files, creates automated pytest tests, runs debugging, performs code review, and prepares a downloadable ZIP package containing the generated application.
+The platform uses a coordinated CrewAI workflow to analyse requirements, design the solution, generate backend and frontend code, create tests, debug failures, review the implementation, package the outputs, and make them available for download.
 
-This project demonstrates an agentic software engineering pipeline where specialist AI agents collaborate in a structured development workflow.
+The latest version is deployed on AWS and supports asynchronous job processing, live progress tracking, isolated job execution, retry handling, and private S3 output storage.
 
----
+Demo
 
-## Latest Update
+The demo shows the complete end-to-end workflow:
 
-This version adds a **browser-based software generator UI** on top of the CrewAI workflow.
+A user submits a software requirement through the browser.
 
-Users can now:
+The web service creates a job and places it on Amazon SQS.
 
-* Open a web interface.
-* Enter or edit a software requirement.
-* Click **Generate Application**.
-* See a loading screen while the agents are working.
-* Download the generated Flask application as a ZIP file.
-* Review generated reports in the `outputs/` folder.
+A separate ECS worker processes the job through seven specialist AI agents.
 
-The new UI is implemented using:
+Progress is displayed on a live job-status page.
 
-```text
-web_app.py
-templates/generator_index.html
-templates/generator_result.html
-```
+The generated application and engineering reports are packaged separately.
 
-Each time a new application is generated, the previous `outputs/` folder is cleared so the workflow starts from a clean state.
+Both ZIP files are uploaded to Amazon S3.
 
----
+The generated application is downloaded, opened in Visual Studio Code, run locally, and functionally tested.
 
-## Screenshots
+Add the final YouTube or LinkedIn demo link here.
 
-### Software Generator UI
+Latest Release
 
-This page allows the user to enter a software requirement and start the CrewAI generation workflow.
+v1.0.0 — AWS Portfolio Release
 
-![Software Generator UI](images/Software_generator.jpg)
+This release adds a production-oriented cloud architecture around the original CrewAI workflow.
 
----
+Key improvements include:
 
-### Generation Result Page
+Deployment with Docker and Amazon ECS Fargate
 
-After the workflow finishes, the user can download the generated application ZIP package.
+Separate web and worker services
 
-![Generation Result](images/Generation_result.jpg)
+Application Load Balancer for browser traffic
 
----
+Amazon SQS for asynchronous job processing
 
-### Example Generated Application
+Amazon DynamoDB for job state and progress tracking
 
-The example below shows a generated **Simulated Stock Trading Dashboard** Flask application.
+Amazon S3 for private output storage
 
-![Generated Simulated Stock Trading App](images/Generated_trading_app.jpg)
+Amazon ECR for Docker image storage
 
----
+AWS Secrets Manager for API keys
 
-## Project Overview
+Per-job isolated workspaces
 
-The **Agentic Software Engineering Crew** takes a user-provided software requirement and generates a complete Flask application inside:
+Retry and failure handling
 
-```text
-outputs/generated_app/
-```
+Live status polling in the browser
 
-The generated application can include:
+Separate application and report ZIP downloads
 
-* Flask backend source code
-* Frontend HTML, CSS, and JavaScript
-* JSON API routes
-* In-memory data models
-* Automated pytest tests
-* `requirements.txt`
-* Generated application README
-* Requirement analysis report
-* Architecture report
-* Backend and frontend generation summaries
-* Test summary
-* Debugging report
-* Final code review report
-* Downloadable ZIP package
+Health-check endpoints for container monitoring
 
-The ZIP package is created at:
+Project Overview
 
-```text
-outputs/generated_app.zip
-```
+The Agentic Software Engineering Crew accepts a natural-language software requirement and generates a complete application through a structured sequence of specialist agents.
 
----
+The generated output can include:
 
-## Latest Example Requirement
+Flask backend source code
 
-The latest tested example uses the following user requirement:
+HTML, CSS, and vanilla JavaScript frontend
 
-```python
-requirements = """
-I want a simple web application for managing a simulated stock trading account.
+JSON API endpoints
 
-The user should be able to create an account, add money to the account, withdraw money, and keep track of their available cash balance.
+In-memory data models
 
-The user should also be able to simulate buying and selling shares. When buying shares, the system should check that the user has enough available cash. When selling shares, the system should check that the user actually owns enough shares to sell.
+Input validation and HTTP error handling
 
-The application should show the user's current holdings, including how many shares they own for each stock symbol. It should also show the current cash balance, the total value of the holdings, the total account value, and whether the user is in profit or loss compared with the amount of money they originally deposited.
+Automated pytest tests
 
-The system should keep a history of all actions, including deposits, withdrawals, buys, and sells, so the user can review what happened over time.
+requirements.txt
 
-For this first version, the application can use fixed share prices instead of live market data. It should support a few example symbols such as AAPL, TSLA, and GOOGL.
+Generated application README.md
 
-The application should have a clean browser interface where the user can manage the account, make trades, view holdings, see profit or loss, and review transaction history.
+Requirement analysis report
 
-This is only a first version, so it does not need real user login, real payment processing, live stock prices, or a database. The data can be stored in memory while the app is running.
-"""
-```
+Architecture report
 
----
+Backend development report
 
-## Latest Generated Application
+Frontend development report
 
-The latest generated application is a **Simulated Stock Trading Dashboard**.
+Test report
 
-It supports:
+Debugging report
 
-* Creating simulated trading accounts
-* Depositing funds
-* Withdrawing funds
-* Preventing withdrawals that would create a negative cash balance
-* Buying shares using fixed share prices
-* Preventing purchases when the account has insufficient cash
-* Selling shares
-* Preventing sales of shares that the account does not own
-* Viewing holdings by stock symbol
-* Viewing fixed share prices
-* Calculating cash balance
-* Calculating holdings value
-* Calculating total account value
-* Calculating profit or loss
-* Viewing transaction history
-* Using a Flask JSON API
-* Running automated pytest tests
+Final code-review report
 
-The generated dashboard provides a clean browser interface where a user can manage accounts, perform trading actions, and review account performance.
+Downloadable application ZIP
 
----
+Downloadable engineering-report ZIP
 
-## Key Features
+Cloud Architecture
 
-* Browser-based requirement input form
-* Loading overlay while generation is running
-* Multi-agent CrewAI software generation workflow
-* Requirement analysis from natural-language input
-* Architecture planning before implementation
-* Flask backend code generation
-* Frontend generation with HTML, CSS, and vanilla JavaScript
-* Automated pytest test generation
-* Test execution through a custom test runner tool
-* Debugging agent that can inspect files, run tests, and fix issues
-* Final code review agent
-* Generated source files written to disk
-* Downloadable generated application ZIP
-* Structured markdown reports in the `outputs/` folder
+Browser
+   |
+   v
+Application Load Balancer
+   |
+   v
+ECS Fargate Web Service
+   |\
+   | \--> Amazon DynamoDB (job state and progress)
+   |
+   \----> Amazon SQS (job queue)
+                |
+                v
+        ECS Fargate Worker Service
+                |
+                v
+        CrewAI Multi-Agent Workflow
+                |
+                v
+      Generated Application + Reports
+                |
+                v
+          Amazon S3 Private Bucket
 
----
+AWS Services
 
-## Agent Workflow
+Service
+
+Purpose
+
+Amazon ECS Fargate
+
+Runs the web and worker containers
+
+Application Load Balancer
+
+Routes browser traffic to the web service
+
+Amazon ECR
+
+Stores the Docker image
+
+Amazon SQS
+
+Decouples job submission from long-running generation
+
+Amazon DynamoDB
+
+Stores job status, progress, messages, and output metadata
+
+Amazon S3
+
+Stores generated application and report archives
+
+AWS Secrets Manager
+
+Stores external API credentials
+
+Amazon CloudWatch
+
+Stores container logs and operational events
+
+AWS IAM
+
+Controls access between ECS tasks and AWS services
+
+Asynchronous Job Flow
+
+When a user clicks Generate Application:
+
+The Flask web service validates the requirement.
+
+A unique job ID is created.
+
+A job record is written to DynamoDB.
+
+The job message is sent to SQS.
+
+The browser is redirected to a live status page.
+
+The ECS worker receives the queued job.
+
+A job-specific workspace is created.
+
+CrewAI runs the seven-agent software engineering workflow.
+
+Job progress is written back to DynamoDB.
+
+The generated application is packaged as generated_app.zip.
+
+The engineering reports are packaged as generation_reports.zip.
+
+Both files are uploaded to S3.
+
+The completed job page displays secure download options.
+
+The browser does not remain blocked while the AI workflow is running. Instead, it retrieves the latest status from the backend at regular intervals.
+
+Agent Workflow
 
 The project uses a sequential CrewAI process:
 
-```text
 Requirement Analyst
         ↓
 Software Architect
@@ -183,116 +217,551 @@ Test Engineer
 Debugging Engineer
         ↓
 Code Reviewer
-```
 
-Each stage receives context from earlier stages and produces a specific development artefact.
+Each agent receives context from previous stages and produces a specialised engineering artefact.
 
----
+Requirement Analyst
 
-## Agents
+Produces:
 
-### Requirement Analyst
+Problem summary
 
-Analyses the software requirement and produces:
+User goals
 
-* Problem summary
-* Main users and goals
-* Main features
-* User stories
-* Acceptance criteria
-* Functional requirements
-* Non-functional requirements
-* Assumptions
-* Out-of-scope items
-* Risks and ambiguities
+Functional requirements
 
-### Software Architect
+Non-functional requirements
 
-Designs the application architecture, including:
+User stories
 
-* Technology stack
-* File structure
-* Main modules and responsibilities
-* Data model or data structure
-* API endpoints
-* Frontend behaviour
-* Validation strategy
-* Error handling strategy
-* Testing strategy
-* Known limitations
+Acceptance criteria
 
-### Backend Engineer
+Assumptions
 
-Generates backend implementation files such as:
+Risks
 
-```text
+Ambiguities
+
+Out-of-scope items
+
+Software Architect
+
+Defines:
+
+Technology stack
+
+File and module structure
+
+Data model
+
+API endpoints
+
+Frontend behaviour
+
+Validation strategy
+
+Error-handling strategy
+
+Testing strategy
+
+Known limitations
+
+Backend Engineer
+
+Generates backend files such as:
+
 app.py
 models.py
 routes.py
 requirements.txt
 README.md
-```
 
-The backend uses Flask and in-memory storage unless the requirement explicitly asks for persistence.
-
-### Frontend Engineer
+Frontend Engineer
 
 Generates frontend files such as:
 
-```text
 templates/index.html
 static/css/style.css
 static/js/app.js
-```
 
-The frontend uses HTML, CSS, vanilla JavaScript, and `fetch()` calls to communicate with the Flask backend API.
+Test Engineer
 
-### Test Engineer
+Creates automated pytest tests covering:
 
-Creates automated pytest tests in:
+Main success workflows
 
-```text
-tests/test_app.py
-```
+Invalid requests
 
-The tests cover main success paths, validation errors, and important edge cases.
+Business-rule enforcement
 
-### Debugging Engineer
+Important edge cases
 
-Runs the generated pytest test suite using the custom `TestRunnerTool`.
+Reset and filtering behaviour
 
-If tests fail, the debugging agent can:
+Debugging Engineer
 
-* Read pytest output
-* Inspect generated files
-* Decide whether the issue is in the backend, frontend, or tests
-* Rewrite corrected files
-* Re-run tests
-* Produce a debugging report
+The debugging agent can:
 
-### Code Reviewer
+Run pytest
 
-Reviews the final generated application and reports on:
+Read test output
 
-* Requirement coverage
-* Backend correctness
-* Frontend/backend integration
-* Input validation
-* Error handling
-* Test coverage
-* Debugging result
-* Maintainability
-* Security
-* Production readiness
-* Suggested improvements
+Inspect generated files
 
----
+Identify implementation or test defects
 
-## Current Model Configuration
+Rewrite files
 
-The current agent model setup is:
+Re-run tests
 
-```yaml
+Record the final debugging result
+
+Code Reviewer
+
+Reviews:
+
+Requirement coverage
+
+Backend correctness
+
+Frontend and API integration
+
+Input validation
+
+Error handling
+
+Test coverage
+
+Maintainability
+
+Security considerations
+
+Production-readiness gaps
+
+Recommended improvements
+
+Latest Tested Example
+
+The latest end-to-end AWS demonstration generated an Equipment Booking Management application.
+
+Requirement Summary
+
+The generated Flask application allows staff to:
+
+Add equipment with a name, category, and availability status
+
+View all equipment in a browser dashboard
+
+Book available equipment for a staff member
+
+Store booking and expected return dates
+
+Prevent unavailable equipment from being booked again
+
+Mark booked equipment as returned
+
+Filter equipment by category and availability
+
+Display success and error messages
+
+Reset sample data
+
+Technical requirements included:
+
+Python and Flask
+
+In-memory storage
+
+JSON API endpoints
+
+Responsive HTML, CSS, and vanilla JavaScript frontend
+
+Modular backend structure
+
+Input validation
+
+Clear HTTP status codes
+
+Automated pytest tests
+
+requirements.txt
+
+Setup instructions
+
+Local execution with python app.py
+
+Verified Demo Results
+
+The recorded demo confirms that:
+
+The requirement was submitted successfully
+
+All agent stages completed
+
+The job status reached COMPLETED
+
+generated_app.zip was created
+
+generation_reports.zip was created
+
+Both files were uploaded to S3
+
+Both archives were downloaded successfully
+
+The generated project opened correctly in Visual Studio Code
+
+The generated application ran locally
+
+Core booking-management workflows were tested successfully
+
+Output Packages
+
+Each completed job creates two separate archives.
+
+Generated Application
+
+generated_app.zip
+
+Typical contents:
+
+generated_app/
+├── app.py
+├── models.py
+├── routes.py
+├── requirements.txt
+├── README.md
+├── templates/
+│   └── index.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── app.js
+└── tests/
+    └── test_app.py
+
+Engineering Reports
+
+generation_reports.zip
+
+Typical contents:
+
+requirements_analysis.md
+architecture.md
+backend_summary.md
+frontend_summary.md
+test_summary.md
+debugging_report.md
+code_review.md
+
+Keeping these outputs separate provides a clean application package while preserving full visibility into the engineering workflow.
+
+Key Features
+
+Browser-based software requirement submission
+
+Multi-agent CrewAI workflow
+
+Asynchronous job processing
+
+Live stage and status tracking
+
+Separate web and worker containers
+
+Queue-based workload decoupling
+
+Job data stored in DynamoDB
+
+Per-job isolated workspaces
+
+Automated source-file generation
+
+Automated pytest generation and execution
+
+Debugging and re-validation
+
+Final code review
+
+Retry and failure handling
+
+Private S3 output storage
+
+Separate downloadable application and report archives
+
+Docker-based deployment
+
+ECS health checks
+
+CloudWatch logging
+
+Local Development Architecture
+
+The project can also run locally without AWS.
+
+Main local components:
+
+web_app.py
+worker.py
+src/agentic_software_engineering_crew/
+templates/
+outputs/
+
+In the local workflow, generated files are written to the outputs/ directory.
+
+Project Structure
+
+agentic_software_engineering_crew/
+├── src/
+│   └── agentic_software_engineering_crew/
+│       ├── config/
+│       │   ├── agents.yaml
+│       │   └── tasks.yaml
+│       ├── tools/
+│       │   ├── file_writer_tool.py
+│       │   ├── file_reader_tool.py
+│       │   └── test_runner_tool.py
+│       ├── crew.py
+│       └── main.py
+├── templates/
+│   ├── generator_index.html
+│   ├── job_status.html
+│   └── generator_result.html
+├── images/
+├── outputs/
+├── web_app.py
+├── worker.py
+├── Dockerfile
+├── requirements.txt
+├── pyproject.toml
+├── uv.lock
+├── .env.example
+└── README.md
+
+The exact structure may vary as the project evolves.
+
+Installation
+
+Clone the repository:
+
+git clone <your-repository-url>
+cd agentic_software_engineering_crew
+
+Create a virtual environment:
+
+python -m venv .venv
+
+Activate it on Windows:
+
+.venv\Scripts\activate
+
+Activate it on macOS or Linux:
+
+source .venv/bin/activate
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Or, when using uv:
+
+uv sync
+
+Environment Variables
+
+Create a .env file in the project root.
+
+Example:
+
+OPENAI_API_KEY=your_openai_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_API_BASE=https://openrouter.ai/api/v1
+
+AWS_REGION=eu-west-2
+DYNAMODB_TABLE_NAME=agentic-crew-jobs
+SQS_QUEUE_URL=your_sqs_queue_url
+S3_OUTPUT_BUCKET=your_private_output_bucket
+
+OUTPUT_DIR=outputs
+LOG_LEVEL=INFO
+SQS_WAIT_TIME_SECONDS=20
+SQS_VISIBILITY_TIMEOUT_SECONDS=5400
+SQS_MAX_RECEIVE_COUNT=3
+FINAL_RESULT_MAX_LENGTH=10000
+
+Never commit .env, API keys, AWS credentials, or secret values to GitHub.
+
+In AWS, API credentials should be injected through AWS Secrets Manager rather than stored directly in the ECS task definition.
+
+Running Locally
+
+Start the web application
+
+python web_app.py
+
+Then open:
+
+http://127.0.0.1:8000/
+
+Start the worker
+
+In a separate terminal:
+
+python worker.py
+
+When using uv:
+
+uv run python web_app.py
+
+and:
+
+uv run python worker.py
+
+Running the Crew Directly
+
+The CrewAI workflow can also be executed without the browser interface:
+
+crewai run
+
+Generated artefacts are written to the configured output directory.
+
+Running a Generated Application
+
+After downloading and extracting generated_app.zip:
+
+cd generated_app
+pip install -r requirements.txt
+python app.py
+
+Then open the local URL specified by the generated application, commonly:
+
+http://127.0.0.1:5000/
+
+Running Generated Tests
+
+From inside the generated application directory:
+
+python -m pytest
+
+Or:
+
+python -m pytest tests/test_app.py
+
+The final test and debugging outcomes are also available in the engineering report archive.
+
+Docker
+
+Build the image:
+
+docker build -t agentic-software-engineering-crew:v1.0.0 .
+
+Run the web container locally:
+
+docker run --rm -p 8000:8000 --env-file .env agentic-software-engineering-crew:v1.0.0
+
+Run the worker using a command override:
+
+docker run --rm --env-file .env agentic-software-engineering-crew:v1.0.0 uv run python worker.py
+
+AWS Deployment Overview
+
+The deployed version uses two ECS services.
+
+Web Service
+
+Responsibilities:
+
+Serve the browser UI
+
+Accept requirements
+
+Validate input
+
+Create job records
+
+Send jobs to SQS
+
+Return live job status
+
+Provide download links after completion
+
+Worker Service
+
+Responsibilities:
+
+Long-poll SQS
+
+Claim queued jobs
+
+Create isolated workspaces
+
+Run the CrewAI workflow
+
+Update DynamoDB progress
+
+Build ZIP archives
+
+Upload outputs to S3
+
+Mark jobs as completed, retrying, or failed
+
+Container Image
+
+Both services use the same Docker image from Amazon ECR. The worker service overrides the default container command to run worker.py.
+
+Job States
+
+A job may move through states such as:
+
+QUEUED
+RUNNING
+RETRYING
+COMPLETED
+FAILED
+
+During RUNNING, the application also records the current agent stage and a human-readable progress message.
+
+Reliability and Failure Handling
+
+The worker includes safeguards for long-running AI generation tasks:
+
+SQS long polling
+
+Extended message visibility timeout
+
+Controlled retry count
+
+Job-state persistence in DynamoDB
+
+Exception logging in CloudWatch
+
+Per-job workspace cleanup
+
+Output validation before completion
+
+Separate failure and retry states
+
+A dead-letter queue can be attached to the main SQS queue for jobs that exceed the configured receive count.
+
+Security Considerations
+
+Output files are stored in a private S3 bucket
+
+API keys are stored in AWS Secrets Manager
+
+ECS tasks use IAM task roles
+
+AWS service access follows least-privilege principles
+
+The web task does not require direct access to external credentials beyond its responsibilities
+
+Generated applications must still be reviewed before production use
+
+No secrets should be shown in screenshots or public demo videos
+
+Current Model Configuration
+
+The project supports different models for different specialist roles. An example configuration is:
+
 requirement_analyst:
   llm: openai/gpt-5-mini
 
@@ -313,367 +782,95 @@ debugging_engineer:
 
 code_reviewer:
   llm: openai/gpt-5-mini
-```
 
-This setup uses stronger models for architecture, backend generation, frontend generation, and debugging, while using lighter models for requirement analysis, testing, and review to reduce runtime and cost.
+Model names and providers can be changed through the project configuration.
 
----
+Why a Sequential Workflow?
 
-## Custom Tools
+The project currently uses a sequential process because each engineering stage depends on the previous one:
 
-This project includes custom CrewAI tools for file handling and testing.
+Requirements must be understood before architecture is designed.
 
-### FileWriterTool
+Architecture should guide implementation.
 
-Writes generated source code files into:
+Tests should validate generated behaviour.
 
-```text
-outputs/generated_app/
-```
+Debugging should respond to real test results.
 
-This ensures agents create real project files instead of only returning markdown code blocks.
+Final review should evaluate the corrected implementation.
 
-### FileReaderTool
+A future version could use hierarchical supervision or dynamically route failed work back to the responsible agent.
 
-Reads generated files from:
+Current Limitations
 
-```text
-outputs/generated_app/
-```
+Jobs are not associated with authenticated users
 
-This allows debugging and review agents to inspect generated source code.
+One worker task processes one job at a time
 
-### TestRunnerTool
+Generation cost depends on the selected models and providers
 
-Runs pytest inside the generated application directory:
+Live progress uses polling rather than WebSockets
 
-```text
-outputs/generated_app/
-```
+The generated applications are MVPs and require human review
 
-It returns the full test result, including return code, stdout, and stderr.
+Generated test coverage may need manual improvement
 
----
+The worker currently executes a sequential agent workflow
 
-## Web Generator UI
+Generated applications are not automatically deployed
 
-The project includes a Flask-based UI for running the generation workflow.
+S3 output retention and lifecycle policies must be configured separately
 
-### Main Files
+Full production observability and alerting are not yet implemented
 
-```text
-web_app.py
-templates/generator_index.html
-templates/generator_result.html
-```
+Future Improvements
 
-### What Happens When the User Clicks Generate Application
+Add user authentication and job ownership
 
-1. The user enters a software requirement in the browser.
-2. The frontend shows a loading overlay.
-3. `web_app.py` clears the previous `outputs/` folder.
-4. `web_app.py` creates a clean `outputs/generated_app/` folder.
-5. CrewAI starts the sequential agent workflow.
-6. Agents generate reports and source files.
-7. The generated app is saved into `outputs/generated_app/`.
-8. The generated app is zipped into `outputs/generated_app.zip`.
-9. The result page shows whether the ZIP is available.
-10. The user can download the generated application.
+Add generation history per user
 
----
+Add WebSocket or Server-Sent Events progress updates
 
-## Output Structure
+Scale the worker service based on SQS queue depth
 
-After running the web generator or CrewAI workflow, outputs are saved under:
+Add a dead-letter queue management interface
 
-```text
-outputs/
-```
+Add CloudWatch alarms and dashboards
 
-Example structure:
+Add automated S3 lifecycle policies
 
-```text
-outputs/
-├── requirements_analysis.md
-├── architecture.md
-├── backend_summary.md
-├── frontend_summary.md
-├── test_summary.md
-├── debugging_report.md
-├── code_review.md
-├── generated_app.zip
-└── generated_app/
-    ├── app.py
-    ├── models.py
-    ├── routes.py
-    ├── requirements.txt
-    ├── README.md
-    ├── templates/
-    │   └── index.html
-    ├── static/
-    │   ├── css/
-    │   │   └── style.css
-    │   └── js/
-    │       └── app.js
-    └── tests/
-        └── test_app.py
-```
+Add generated Dockerfiles for output applications
 
----
+Add automatic deployment options for generated applications
 
-## Running the Web Generator
+Add framework targets such as FastAPI, Django, React, or Next.js
 
-Start the generator UI:
+Add Playwright-based frontend testing
 
-```bash
-python web_app.py
-```
+Add model profiles such as fast, balanced, and premium
 
-Then open:
+Add cost estimation before job submission
 
-```text
-http://127.0.0.1:8000/
-```
+Add human approval gates between selected agent stages
 
-Enter a software requirement and click:
+Add CI/CD and Infrastructure as Code
 
-```text
-Generate Application
-```
+Release Commands
 
-The UI will show a loading screen while the CrewAI workflow is running.
+The AWS portfolio release was tagged with:
 
-When generation finishes, the result page provides a download button for:
+git add .
+git commit -m "Complete AWS deployment and downloadable generation reports"
+git tag -a v1.0.0 -m "Production-ready AWS portfolio release"
+git push origin main
+git push origin v1.0.0
 
-```text
-generated_app.zip
-```
+Disclaimer
 
----
+This project is a portfolio and research-style demonstration of agentic software engineering. Generated applications must be reviewed, tested, secured, and adapted before production use. The platform is not intended to replace professional software engineering, security review, or production quality assurance.
 
-## Running the Crew from Terminal
-
-You can also run the CrewAI workflow directly:
-
-```bash
-crewai run
-```
-
-This runs the configured sequential workflow and writes generated artefacts into the `outputs/` folder.
-
----
-
-## Running the Generated Application
-
-After generation finishes, go to the generated app directory:
-
-```bash
-cd outputs/generated_app
-```
-
-Install generated app dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run the generated Flask application:
-
-```bash
-python app.py
-```
-
-Then open:
-
-```text
-http://127.0.0.1:5000/
-```
-
----
-
-## Running the Generated Tests
-
-From inside the generated app directory:
-
-```bash
-cd outputs/generated_app
-python -m pytest tests/test_app.py
-```
-
-The test result depends on the generated application and the latest debugging stage output.
-
-Check the following files for the latest test status:
-
-```text
-outputs/debugging_report.md
-outputs/test_summary.md
-```
-
----
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone <your-repository-url>
-cd agentic_software_engineering_crew
-```
-
-Create and activate a virtual environment:
-
-```bash
-python -m venv .venv
-```
-
-On Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-On macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-If using CrewAI safe code execution, make sure Docker is installed and running.
-
----
-
-## Environment Variables
-
-Create a `.env` file in the project root.
-
-Example:
-
-```text
-OPENAI_API_KEY=your_openai_api_key_here
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-```
-
-Do not commit your `.env` file to GitHub.
-
----
-
-## Project Structure
-
-Main project structure:
-
-```text
-agentic_software_engineering_crew/
-├── src/
-│   └── agentic_software_engineering_crew/
-│       ├── config/
-│       │   ├── agents.yaml
-│       │   └── tasks.yaml
-│       ├── tools/
-│       │   ├── file_writer_tool.py
-│       │   ├── file_reader_tool.py
-│       │   └── test_runner_tool.py
-│       ├── crew.py
-│       └── main.py
-├── templates/
-│   ├── generator_index.html
-│   └── generator_result.html
-├── images/
-│   ├── Software_generator.jpg
-│   ├── Generation_result.jpg
-│   └── Queue_management_app.jpg
-├── outputs/
-├── web_app.py
-├── .env
-├── requirements.txt
-└── README.md
-```
-
----
-
-## Why Sequential Workflow?
-
-This project currently uses:
-
-```python
-process=Process.sequential
-```
-
-A sequential process is suitable because each step depends on the previous step:
-
-1. Requirements must be analysed before architecture is designed.
-2. Architecture should guide backend and frontend generation.
-3. Tests should be generated after implementation.
-4. Debugging should happen after tests exist.
-5. Final review should happen after testing and debugging.
-
-A future version could use a manager agent or hierarchical workflow to dynamically route failed outputs back to the responsible specialist agent.
-
----
-
-## Current Limitations
-
-This project is an agentic workflow prototype and has some limitations:
-
-* Generation time can be slow when using large models such as GPT-5 and Claude Sonnet.
-* The generated application is usually an MVP, not a production-ready system.
-* The generated frontend is suitable for demos but may need manual refinement for real users.
-* Test coverage is generated automatically and may require review.
-* The code review agent may need stronger task instructions to ensure a full review report is always produced.
-* Generated outputs are saved to a fixed output directory.
-* Each new generation clears the previous `outputs/` folder.
-* Running multiple generations at the same time is not currently supported.
-* The current workflow is sequential rather than dynamically supervised.
-* Generated applications still require human review before production use.
-
----
-
-## Future Improvements
-
-Planned or possible improvements include:
-
-* Save each generation in a unique run folder.
-* Add generation history.
-* Add progress updates from the backend instead of only a loading overlay.
-* Add a background task queue for long generation jobs.
-* Add WebSocket or polling-based live generation status.
-* Improve generated frontend testing with Playwright or Selenium.
-* Add generated Dockerfiles for generated apps.
-* Add database-backed generation history.
-* Add support for multiple framework targets such as FastAPI, Django, or React.
-* Improve code review reliability.
-* Add deployment configuration for generated apps.
-* Add model profiles such as fast, balanced, and premium.
-
----
-
-## Second Commit Summary
-
-This update includes:
-
-* Added browser-based generator UI.
-* Added loading overlay while generation is running.
-* Added generated application ZIP download flow.
-* Added clean output reset before each new generation.
-* Updated tasks to be more generic and not tied to one specific example.
-* Improved debugging instructions so final pytest output must be real.
-* Improved frontend/test instructions to avoid brittle endpoint checks.
-* Added latest simulated stock trading generated app example.
-* Added example screenshots for README documentation.
-
----
-
-## Disclaimer
-
-This project is intended as a portfolio and research-style demonstration of agentic software engineering workflows. It is not intended to replace professional software development review, security testing, or production deployment practices without additional validation.
-
----
-
-## Author
+Author
 
 Navid Hejazi
+
+Full Stack Developer and AI Engineer focused on intelligent, production-oriented systems using Python, Flask, cloud infrastructure, LLMs, and agentic workflows.
