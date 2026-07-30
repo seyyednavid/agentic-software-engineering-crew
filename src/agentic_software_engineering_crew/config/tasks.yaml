@@ -24,7 +24,7 @@ analyse_requirements_task:
   expected_output: >
     A structured markdown requirement analysis document with clear acceptance criteria.
   agent: requirement_analyst
-  output_file: outputs/requirements_analysis.md
+  output_file: "{output_dir}/reports/requirements_analysis.md"
 
 
 design_architecture_task:
@@ -87,7 +87,7 @@ design_architecture_task:
   agent: software_architect
   context:
     - analyse_requirements_task
-  output_file: outputs/architecture.md
+  output_file: "{output_dir}/reports/architecture.md"
 
 
 generate_backend_files_task:
@@ -95,7 +95,7 @@ generate_backend_files_task:
     Generate the backend implementation for the Flask application based on the
     requirement analysis and architecture.
 
-    You must use the File Writer Tool to create real files inside outputs/generated_app.
+    You must use the File Writer Tool with paths relative to the active generated application root.
 
     Required files to create:
     - app.py
@@ -103,6 +103,16 @@ generate_backend_files_task:
     - routes.py
     - requirements.txt
     - README.md
+
+    File path rules:
+    - Pass only relative file paths to the File Writer Tool.
+    - Use exactly:
+      - app.py
+      - models.py
+      - routes.py
+      - requirements.txt
+      - README.md
+    - Do not prefix file paths with outputs/, outputs/generated_app/, or generated_app/.
 
     Completion rules:
     - You must call the File Writer Tool once for every required file.
@@ -112,7 +122,7 @@ generate_backend_files_task:
     - Your final answer must list every file that was actually written.
     - If a file cannot be written, clearly report the failure.
     - The task is not complete unless all required backend files have been written
-      into outputs/generated_app.
+      using the exact relative paths listed above.
 
     Backend quality requirements:
     - Use Flask.
@@ -169,13 +179,13 @@ generate_backend_files_task:
     - requirements.txt
     - README.md
 
-    The task is not complete unless all five files have been written into
-    outputs/generated_app.
+    The task is not complete unless all five files have been written using
+    their exact relative paths.
   agent: backend_engineer
   context:
     - analyse_requirements_task
     - design_architecture_task
-  output_file: outputs/backend_summary.md
+  output_file: "{output_dir}/reports/backend_summary.md"
 
 
 generate_frontend_files_task:
@@ -183,12 +193,20 @@ generate_frontend_files_task:
     Generate a professional frontend for the Flask application based on the
     requirement analysis, architecture, and generated backend.
 
-    You must use the File Writer Tool to create real files inside outputs/generated_app.
+    You must use the File Writer Tool with paths relative to the active generated application root.
 
     Required files to create:
     - templates/index.html
     - static/css/style.css
     - static/js/app.js
+
+    File path rules:
+    - Pass only relative file paths to the File Writer Tool.
+    - Use exactly:
+      - templates/index.html
+      - static/css/style.css
+      - static/js/app.js
+    - Do not prefix file paths with outputs/, outputs/generated_app/, or generated_app/.
 
     Completion rules:
     - You must call the File Writer Tool once for every required frontend file.
@@ -198,7 +216,7 @@ generate_frontend_files_task:
     - Your final answer must list every file that was actually written.
     - If a file cannot be written, clearly report the failure.
     - The task is not complete unless all required frontend files have been written
-      into outputs/generated_app.
+      using the exact relative paths listed above.
 
     Frontend file rules:
     - index.html must contain semantic HTML structure only.
@@ -241,24 +259,28 @@ generate_frontend_files_task:
     - static/css/style.css
     - static/js/app.js
 
-    The task is not complete unless all three files have been written into
-    outputs/generated_app.
+    The task is not complete unless all three files have been written using
+    their exact relative paths.
   agent: frontend_engineer
   context:
     - analyse_requirements_task
     - design_architecture_task
     - generate_backend_files_task
-  output_file: outputs/frontend_summary.md
+  output_file: "{output_dir}/reports/frontend_summary.md"
 
 
 generate_test_files_task:
   description: >
     Create pytest tests for the generated Flask application.
 
-    You must use the File Writer Tool to create real files inside outputs/generated_app.
+    You must use the File Writer Tool with paths relative to the active generated application root.
 
     Required file to create:
     - tests/test_app.py
+
+    File path rules:
+    - Pass only the relative path tests/test_app.py to the File Writer Tool.
+    - Do not prefix the path with outputs/, outputs/generated_app/, or generated_app/.
 
     Completion rules:
     - You must call the File Writer Tool to create tests/test_app.py.
@@ -267,8 +289,8 @@ generate_test_files_task:
       as the final answer unless the test file has already been written.
     - Your final answer must confirm that tests/test_app.py was actually written.
     - If the file cannot be written, clearly report the failure.
-    - The task is not complete unless tests/test_app.py has been written into
-      outputs/generated_app.
+    - The task is not complete unless tests/test_app.py has been written using
+      the exact relative path shown above.
     - Do not require a specific fetch syntax if the frontend uses a valid API helper or wrapper function.
     - It is acceptable if endpoint paths are used through helper functions such as apiCall().
     - Frontend integration tests should verify endpoint paths, required functions, DOM IDs, and static asset references.
@@ -320,16 +342,15 @@ generate_test_files_task:
     A markdown summary confirming that the File Writer Tool was used to create:
     - tests/test_app.py
 
-    The task is not complete unless tests/test_app.py has been written into
-    outputs/generated_app.
+    The task is not complete unless tests/test_app.py has been written using
+    the exact relative path shown above.
   agent: test_engineer
   context:
     - analyse_requirements_task
     - design_architecture_task
     - generate_backend_files_task
     - generate_frontend_files_task
-  output_file: outputs/test_summary.md
-
+  output_file: "{output_dir}/reports/test_summary.md"
 
 run_and_debug_tests_task:
   description: >
@@ -438,7 +459,7 @@ run_and_debug_tests_task:
     - generate_backend_files_task
     - generate_frontend_files_task
     - generate_test_files_task
-  output_file: outputs/debugging_report.md
+  output_file: "{output_dir}/reports/debugging_report.md"
 
 
 review_generated_application_task:
@@ -515,4 +536,4 @@ review_generated_application_task:
     - generate_frontend_files_task
     - generate_test_files_task
     - run_and_debug_tests_task
-  output_file: outputs/code_review.md
+  output_file: "{output_dir}/reports/code_review.md"

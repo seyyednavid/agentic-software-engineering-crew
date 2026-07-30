@@ -1,66 +1,168 @@
+"""
+CrewAI tool for running pytest against the generated application.
+
+The tool resolves the active generated application directory at runtime,
+allowing each SQS job to use an isolated output workspace.
+"""
+
 import os
 import subprocess
-from typing import Type
 import sys
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 
+from .path_utils import (
+    get_generated_app_root,
+    resolve_safe_path,
+)
 
-class TestRunnerToolInput(BaseModel):
-    """Input schema for TestRunnerTool."""
+
+class TestRunnerInput(BaseModel):
+    """
+    Input schema for the generated application test runner.
+    """
 
     test_path: str = Field(
-        default="tests/test_app.py",
+        default="tests",
         description=(
-            "Relative pytest path inside outputs/generated_app. "
-            "Example: tests/test_app.py"
+            "Relative test file or directory inside "
+            "the active generated application."
         ),
     )
 
 
 class TestRunnerTool(BaseTool):
+    """
+    Run pytest for files inside the active generated application.
+    """
+
     name: str = "Test Runner Tool"
+
     description: str = (
-        "Runs pytest inside outputs/generated_app and returns the full test output. "
-        "Use this tool after the generated app and tests have been created."
+        "Runs pytest against tests inside the active generated "
+        "application directory and returns the test result."
     )
-    args_schema: Type[BaseModel] = TestRunnerToolInput
 
-    def _run(self, test_path: str = "tests/test_app.py") -> str:
-        base_dir = os.path.abspath("outputs/generated_app")
+    args_schema: type[BaseModel] = TestRunnerInput
 
-        if not os.path.exists(base_dir):
-            return "Error: outputs/generated_app does not exist."
+    def _run(
+        self,
+        test_path: str = "tests",
+    ) -> str:
+        """
+        Run pytest against a validated test path.
 
-        test_target = os.path.join(base_dir, test_path)
-
-        if not os.path.exists(test_target):
-            return f"Error: test file does not exist: {test_target}"
-
-        env = os.environ.copy()
-        env["PYTHONPATH"] = base_dir + os.pathsep + env.get("PYTHONPATH", "")
-
+        Pytest plugin auto-loading is disabled to prevent unrelated
+        third-party plugins from affecting generated-app tests.
+        """
         try:
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", test_path, "-q"],
-                cwd=base_dir,
-                capture_output=True,
-                text=True,
-                timeout=120,
-                env=env,
+            generated_app_root = (
+                get_generated_app_root()
             )
 
-            output = []
-            output.append(f"Return code: {result.returncode}")
-            output.append("\nSTDOUT:\n")
-            output.append(result.stdout)
-            output.append("\nSTDERR:\n")
-            output.append(result.stderr)
+            resolved_test_path = resolve_safe_path(
+                test_path,
+                base_directory=generated_app_root,
+            )
 
-            return "\n".join(output)
+            if not generated_app_root.exists():
+                return (
+                    "Generated application directory not found: "
+                    f"{generated_app_root}"
+                )
+
+            if not resolved_test_path.exists():
+                return (
+                    f"Test path not found: {test_path}"
+                )
+
+            if not (
+                resolved_test_path.is_file()
+                or resolved_test_path.is_dir()
+            ):
+                return (
+                    f"Invalid test path: {test_path}"
+                )
+
+            command = [
+                sys.executable,
+                "-m",
+                "pytest",
+                str(resolved_test_path),
+                "-q",
+            ]
+
+            test_environment = os.environ.copy()
+
+            # Prevent unrelated pytest plugins from loading.
+            test_environment[
+                "PYTEST_DISABLE_PLUGIN_AUTOLOAD"
+            ] = "1"
+
+            # Make generated application modules importable.
+            existing_pythonpath = test_environment.get(
+                "PYTHONPATH",
+                "",
+            )
+
+            python_paths = [
+                str(generated_app_root),
+            ]
+
+            if existing_pythonpath:
+                python_paths.append(
+                    existing_pythonpath
+                )
+
+            test_environment["PYTHONPATH"] = (
+                os.pathsep.join(python_paths)
+            )
+
+            # Prevent generated tests from accessing parent application
+            # credentials.
+            test_environment.pop(
+                "OPENAI_API_KEY",
+                None,
+            )
+            test_environment.pop(
+                "OPENROUTER_API_KEY",
+                None,
+            )
+            test_environment.pop(
+                "OPENROUTER_API_BASE",
+                None,
+            )
+
+            result = subprocess.run(
+                command,
+                cwd=generated_app_root,
+                capture_output=True,
+                text=True,
+                timeout=180,
+                check=False,
+                env=test_environment,
+            )
+
+            return (
+                f"Working directory: {generated_app_root}\n"
+                f"Return code: {result.returncode}\n\n"
+                f"STDOUT:\n{result.stdout}\n\n"
+                f"STDERR:\n{result.stderr}"
+            )
 
         except subprocess.TimeoutExpired:
-            return "Error: pytest execution timed out after 120 seconds."
-        except Exception as e:
-            return f"Error while running pytest: {e}"
+            return (
+                "Test execution stopped after the "
+                "180-second timeout."
+            )
+
+        except ValueError as error:
+            return (
+                f"Test path rejected: {error}"
+            )
+
+        except OSError as error:
+            return (
+                f"Unable to run tests: {error}"
+            )

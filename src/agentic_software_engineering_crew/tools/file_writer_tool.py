@@ -1,46 +1,42 @@
-import os
-from typing import Type
-
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 
+from .path_utils import ensure_directory, resolve_safe_path
 
-class FileWriterToolInput(BaseModel):
-    """Input schema for FileWriterTool."""
 
+class FileWriterInput(BaseModel):
     file_path: str = Field(
         ...,
-        description=(
-            "Relative file path inside outputs/generated_app. "
-            "Example: app.py, templates/index.html, static/style.css, tests/test_app.py"
-        ),
+        description="Relative file path inside the active generated application",
     )
     content: str = Field(
         ...,
-        description="The complete content that should be written into the file.",
+        description="Complete content to write to the file",
     )
 
 
 class FileWriterTool(BaseTool):
     name: str = "File Writer Tool"
     description: str = (
-        "Writes real project files into the outputs/generated_app directory. "
-        "Use this tool when you need to create runnable application files such as "
-        "app.py, HTML templates, CSS files, requirements.txt, README.md, or test files."
+        "Writes a file inside the active generated application. "
+        "Only safe relative paths are allowed."
     )
-    args_schema: Type[BaseModel] = FileWriterToolInput
+    args_schema: type[BaseModel] = FileWriterInput
 
     def _run(self, file_path: str, content: str) -> str:
-        base_dir = os.path.abspath("outputs/generated_app")
-        target_path = os.path.abspath(os.path.join(base_dir, file_path))
+        try:
+            target_path = resolve_safe_path(file_path)
+            ensure_directory(target_path.parent)
 
-        # Prevent writing outside outputs/generated_app
-        if not target_path.startswith(base_dir):
-            return f"Error: unsafe file path rejected: {file_path}"
+            target_path.write_text(
+                content,
+                encoding="utf-8",
+            )
 
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            return f"File written successfully: {file_path}"
 
-        with open(target_path, "w", encoding="utf-8") as file:
-            file.write(content)
+        except ValueError as exc:
+            return f"File write rejected: {exc}"
 
-        return f"File written successfully: {target_path}"
+        except OSError as exc:
+            return f"File write failed: {exc}"

@@ -1,232 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Generation Result</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --success-bg: #ecfdf5;
-            --success-border: #10b981;
-            --success-text: #065f46;
-            --warning-bg: #fff7ed;
-            --warning-border: #f97316;
-            --warning-text: #9a3412;
-            --bg: #f3f6fb;
-            --card: #ffffff;
-            --text: #172033;
-            --muted: #5f6b7a;
-            --dark: #101827;
-            --shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generation Result</title>
 
-        * {
-            box-sizing: border-box;
-        }
+  <style>
+    :root {
+      --text: #172033;
+      --muted: #667085;
+      --border: #e3e8f0;
+      --primary: #4f46e5;
+      --primary-soft: #eef2ff;
+      --success: #059669;
+      --success-soft: #ecfdf5;
+      --warning: #d97706;
+      --warning-soft: #fff7ed;
+      --dark: #111827;
+      --panel: rgba(255, 255, 255, 0.96);
+      --shadow: 0 24px 70px rgba(30, 41, 59, 0.18);
+    }
 
-        body {
-            margin: 0;
-            font-family: Inter, Arial, sans-serif;
-            background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 100%);
-            color: var(--text);
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        .page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 12%, rgba(99, 102, 241, 0.22), transparent 30%),
+        radial-gradient(circle at 88% 10%, rgba(14, 165, 233, 0.16), transparent 28%),
+        linear-gradient(135deg, #dfe6f4 0%, #e9eef8 48%, #dce8f5 100%);
+    }
 
-        .container {
-            width: 100%;
-            max-width: 980px;
-            background: var(--card);
-            border-radius: 22px;
-            padding: 42px;
-            box-shadow: var(--shadow);
-        }
+    .page {
+      min-height: 100vh;
+      padding: 28px 20px;
+      display: grid;
+      place-items: center;
+    }
 
-        .badge {
-            display: inline-block;
-            padding: 7px 12px;
-            border-radius: 999px;
-            background: #eaf1ff;
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 18px;
-        }
+    .container {
+      width: min(100%, 1080px);
+      padding: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 26px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
 
-        .badge.warning-badge {
-            background: #fff7ed;
-            color: var(--warning-text);
-        }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      margin-bottom: 16px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+    }
 
-        h1 {
-            margin: 0 0 22px;
-            font-size: 34px;
-            letter-spacing: -0.03em;
-        }
+    .badge.warning {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
 
-        .status-box {
-            padding: 16px 18px;
-            border-radius: 14px;
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
 
-        .status-box.success {
-            background: var(--success-bg);
-            border: 1px solid var(--success-border);
-            color: var(--success-text);
-        }
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+    }
 
-        .status-box.warning {
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            color: var(--warning-text);
-        }
+    .lead {
+      margin: 16px 0 24px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+      max-width: 780px;
+    }
 
-        .actions {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
+    .status-box {
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      border-radius: 14px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
 
-        .button {
-            display: inline-block;
-            padding: 14px 22px;
-            background: var(--primary);
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
-            transition: transform 0.15s, background 0.2s;
-        }
+    .status-box.success {
+      border: 1px solid #7dd3b0;
+      background: var(--success-soft);
+      color: #087654;
+    }
 
-        .button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
+    .status-box.warning {
+      border: 1px solid #fdba74;
+      background: var(--warning-soft);
+      color: #9a3412;
+    }
 
-        .button.secondary {
-            background: #475569;
-            box-shadow: none;
-        }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
 
-        .button.secondary:hover {
-            background: #334155;
-        }
+    .summary-card {
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.8);
+    }
 
-        h2 {
-            margin-top: 0;
-            font-size: 22px;
-        }
+    .summary-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
 
-        pre {
-            background: var(--dark);
-            color: #f8fafc;
-            padding: 20px;
-            border-radius: 14px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            line-height: 1.6;
-            font-size: 14px;
-            border: 1px solid #1f2937;
-        }
+    .summary-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
 
-        .summary-card {
-            padding: 18px;
-            border-radius: 14px;
-            background: #f8fafc;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 24px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
 
-        .small-note {
-            font-size: 14px;
-            color: var(--muted);
-            margin-top: -14px;
-            margin-bottom: 24px;
-        }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    }
 
-        @media (max-width: 700px) {
-            .container {
-                padding: 28px;
-            }
+    .button.primary {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--primary), #0ea5e9);
+      box-shadow: 0 12px 26px rgba(79, 70, 229, 0.22);
+    }
 
-            h1 {
-                font-size: 28px;
-            }
+    .button.secondary {
+      color: #ffffff;
+      background: #475467;
+    }
 
-            .actions {
-                flex-direction: column;
-            }
+    .button:hover {
+      transform: translateY(-1px);
+    }
 
-            .button {
-                text-align: center;
-                width: 100%;
-            }
-        }
-    </style>
+    .small-note {
+      margin: -10px 0 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .result-heading {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 460px;
+      padding: 20px;
+      overflow: auto;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      background: var(--dark);
+      color: #f8fafc;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 20px 12px;
+      }
+
+      .container {
+        padding: 28px 20px;
+        border-radius: 22px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <main class="page">
-        <section class="container">
+  <main class="page">
+    <section class="container">
+      {% if generation_success %}
+        <div class="badge">Generation result</div>
+        <h1>Application generated successfully.</h1>
 
-            {% if generation_success %}
-                <div class="badge">Generation Result</div>
-                <h1>Application Generated Successfully</h1>
+        <p class="lead">
+          The multi-agent workflow completed and prepared the generated application
+          for download and local testing.
+        </p>
 
-                <div class="status-box success">
-                    Your application files, reports, tests, and ZIP package are ready.
-                </div>
+        <div class="status-box success">
+          Your source code, tests, reports, and application package are ready.
+        </div>
 
-                <div class="summary-card">
-                    You can download the generated application as a ZIP file, extract it,
-                    install its dependencies, and run it locally using the instructions
-                    included in the generated app README.
-                </div>
-            {% else %}
-                <div class="badge warning-badge">Generation Issue</div>
-                <h1>Generation Finished With Issues</h1>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <strong>Application files</strong>
+            <span>Backend, frontend, configuration, and documentation.</span>
+          </div>
 
-                <div class="status-box warning">
-                    The workflow finished, but no valid generated application ZIP was created.
-                </div>
+          <div class="summary-card">
+            <strong>Automated validation</strong>
+            <span>Generated tests, debugging output, and final review.</span>
+          </div>
 
-                <div class="summary-card">
-                    This usually means the generated app folder was empty or required files were
-                    not written by the agents. Check the final crew result, debugging report,
-                    and generated output folder before downloading.
-                </div>
-            {% endif %}
+          <div class="summary-card">
+            <strong>Download package</strong>
+            <span>A ZIP archive prepared for local extraction and testing.</span>
+          </div>
+        </div>
+      {% else %}
+        <div class="badge warning">Generation issue</div>
+        <h1>Generation finished with issues.</h1>
 
-            <div class="actions">
-                {% if zip_available %}
-                    <a class="button" href="/download">Download Generated App ZIP</a>
-                {% endif %}
+        <p class="lead">
+          The workflow ended, but a valid downloadable application package was not created.
+        </p>
 
-                <a class="button secondary" href="/">Generate Another App</a>
-            </div>
+        <div class="status-box warning">
+          Review the final crew output, reports, and generated files to identify the issue.
+        </div>
+      {% endif %}
 
-            {% if not zip_available %}
-                <div class="small-note">
-                    Download is unavailable because no valid ZIP file was created.
-                </div>
-            {% endif %}
+      <div class="actions">
+        {% if zip_available %}
+          <a class="button primary" href="{{ download_url }}">
+            Download generated application
+          </a>
+        {% endif %}
 
-            <h2>Final Crew Result</h2>
-            <pre>{{ final_result }}</pre>
-        </section>
-    </main>
+        <a class="button secondary" href="/">
+          Generate another application
+        </a>
+      </div>
+
+      {% if not zip_available %}
+        <div class="small-note">
+          Download is unavailable because no valid ZIP file was created.
+        </div>
+      {% endif %}
+
+      <h2 class="result-heading">Final crew result</h2>
+      <pre>{{ final_result }}</pre>
+    </section>
+  </main>
 </body>
 </html>
-

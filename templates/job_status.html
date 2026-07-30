@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generation Status</title>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: rgba(255, 255, 255, 0.96);
+      --text: #172033;
+      --muted: #667085;
+      --border: #e3e8f0;
+      --primary: #4f46e5;
+      --primary-soft: #eef2ff;
+      --success: #059669;
+      --success-soft: #ecfdf5;
+      --danger: #dc2626;
+      --danger-soft: #fff1f2;
+      --warning: #d97706;
+      --shadow: 0 28px 80px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 12%, rgba(99, 102, 241, 0.22), transparent 30%),
+        radial-gradient(circle at 88% 10%, rgba(14, 165, 233, 0.16), transparent 28%),
+        linear-gradient(135deg, #dfe6f4 0%, #e9eef8 48%, #dce8f5 100%);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 28px 20px;
+      display: grid;
+      place-items: center;
+    }
+
+    .container {
+      width: min(100%, 1120px);
+      padding: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 26px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(30, 41, 59, 0.18);
+      backdrop-filter: blur(12px);
+    }
+
+    .top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      margin-bottom: 16px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+    }
+
+    .job-id {
+      margin-top: 12px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .section-label {
+      margin: 0 0 13px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .stage {
+      position: relative;
+      min-width: 0;
+      min-height: 68px;
+      padding: 11px 8px 10px;
+      border: 1px solid #f1b2b8;
+      border-radius: 16px;
+      background: var(--danger-soft);
+      color: #a3132d;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      height: 2px;
+      background: #d0d5dd;
+      transform: translateY(-50%);
+    }
+
+    .stage:last-child::after {
+      display: none;
+    }
+
+    .stage-index {
+      display: block;
+      margin-bottom: 6px;
+      color: currentColor;
+      opacity: 0.62;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+
+    .stage-name {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .stage-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 5px;
+      border-radius: 50%;
+      background: var(--danger);
+      vertical-align: 1px;
+    }
+
+    .stage.active,
+    .stage.completed {
+      border-color: #7dd3b0;
+      background: var(--success-soft);
+      color: #087654;
+    }
+
+    .stage.active {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(5, 150, 105, 0.14);
+    }
+
+    .stage.active .stage-dot {
+      background: var(--success);
+      animation: pulse 1.2s infinite;
+    }
+
+    .stage.completed .stage-dot {
+      background: var(--success);
+    }
+
+    .status-panel {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: #fbfcfe;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      border: 4px solid #e0e7ff;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .spinner.hidden {
+      display: none;
+    }
+
+    .status-name {
+      margin-bottom: 5px;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .progress-message {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .status-queued { color: var(--warning); }
+    .status-running { color: var(--primary); }
+    .status-completed { color: var(--success); }
+    .status-failed { color: var(--danger); }
+
+    .progress-track {
+      height: 10px;
+      margin-top: 22px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e4e7ec;
+    }
+
+    .progress-bar {
+      width: 34%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--primary), #38bdf8);
+      animation: move 1.3s ease-in-out infinite;
+    }
+
+    .progress-bar.hidden {
+      display: none;
+    }
+
+    .error-box {
+      display: none;
+      margin-top: 18px;
+      padding: 15px 16px;
+      border: 1px solid #fecaca;
+      border-radius: 14px;
+      background: #fef2f2;
+      color: #991b1b;
+      line-height: 1.5;
+    }
+
+    .error-box.show {
+      display: block;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 13px;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .button.primary {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--primary), #0ea5e9);
+      box-shadow: 0 12px 26px rgba(79, 70, 229, 0.22);
+    }
+
+    .button.secondary {
+      color: #ffffff;
+      background: #475467;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button.hidden {
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes move {
+      0% { transform: translateX(-120%); }
+      50% { transform: translateX(140%); }
+      100% { transform: translateX(330%); }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.42); }
+      70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+    }
+
+    @media (max-width: 920px) {
+      .pipeline {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .stage::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        padding: 20px 12px;
+      }
+
+      .container {
+        padding: 26px 18px;
+        border-radius: 22px;
+      }
+
+      .top-row {
+        flex-direction: column;
+      }
+
+      .pipeline {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <section class="container">
+      <div class="top-row">
+        <div>
+          <div class="badge">Generation job</div>
+          <h1>Your application is being generated</h1>
+
+          <div class="job-id">
+            Job ID: {{ job_id }}
+          </div>
+        </div>
+
+        <div id="status-chip" class="status-chip">
+          {{ job.status }}
+        </div>
+      </div>
+
+      <p class="section-label">Live agent pipeline</p>
+
+      <div id="agent-pipeline" class="pipeline" aria-label="Software generation agent pipeline">
+        <div class="stage" data-stage="requirements">
+          <span class="stage-index">STEP 01</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Requirements
+          </span>
+        </div>
+
+        <div class="stage" data-stage="architecture">
+          <span class="stage-index">STEP 02</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Architecture
+          </span>
+        </div>
+
+        <div class="stage" data-stage="backend">
+          <span class="stage-index">STEP 03</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Backend
+          </span>
+        </div>
+
+        <div class="stage" data-stage="frontend">
+          <span class="stage-index">STEP 04</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Frontend
+          </span>
+        </div>
+
+        <div class="stage" data-stage="testing">
+          <span class="stage-index">STEP 05</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Testing
+          </span>
+        </div>
+
+        <div class="stage" data-stage="debugging">
+          <span class="stage-index">STEP 06</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Debugging
+          </span>
+        </div>
+
+        <div class="stage" data-stage="review">
+          <span class="stage-index">STEP 07</span>
+          <span class="stage-name">
+            <span class="stage-dot"></span>
+            Review
+          </span>
+        </div>
+      </div>
+
+      <div class="status-panel">
+        <div class="status-row">
+          <div id="spinner" class="spinner"></div>
+
+          <div>
+            <div id="status-name" class="status-name status-queued">
+              {{ job.status }}
+            </div>
+
+            <div id="progress-message" class="progress-message">
+              {{ job.progress }}
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="error-box" class="error-box"></div>
+      </div>
+
+      <div class="actions">
+        <a
+          id="download-button"
+          class="button primary hidden"
+          href="/jobs/{{ job_id }}/download"
+        >
+          Download generated application
+        </a>
+
+        <a
+          id="reports-download-button"
+          class="button primary hidden"
+          href="/jobs/{{ job_id }}/reports/download"
+        >
+          Download generation reports
+        </a>
+
+        <a class="button secondary" href="/">
+          Create another job
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const jobId = {{ job_id | tojson }}
+    const statusName = document.getElementById('status-name')
+    const statusChip = document.getElementById('status-chip')
+    const progressMessage = document.getElementById('progress-message')
+    const spinner = document.getElementById('spinner')
+    const progressBar = document.getElementById('progress-bar')
+    const downloadButton = document.getElementById('download-button')
+    const reportsDownloadButton = document.getElementById('reports-download-button')
+    const errorBox = document.getElementById('error-box')
+    const agentSteps = document.querySelectorAll('.stage')
+
+    let pollingTimer = null
+
+    const stageOrder = [
+      'requirements',
+      'architecture',
+      'backend',
+      'frontend',
+      'testing',
+      'debugging',
+      'review'
+    ]
+
+    function setStatusClass(status) {
+      statusName.className = 'status-name'
+      statusChip.textContent = status
+
+      if (status === 'COMPLETED') {
+        statusName.classList.add('status-completed')
+      } else if (status === 'FAILED') {
+        statusName.classList.add('status-failed')
+      } else if (status === 'RUNNING' || status === 'RETRYING') {
+        statusName.classList.add('status-running')
+      } else {
+        statusName.classList.add('status-queued')
+      }
+    }
+
+    function inferStageFromProgress(progress) {
+      const value = (progress || '').toLowerCase()
+
+      if (value.includes('requirement')) return 'requirements'
+      if (value.includes('architect')) return 'architecture'
+      if (value.includes('backend')) return 'backend'
+      if (value.includes('frontend')) return 'frontend'
+
+      if (
+        value.includes('generating automated tests') ||
+        value.includes('test files')
+      ) return 'testing'
+
+      if (
+        value.includes('debug') ||
+        value.includes('running tests')
+      ) return 'debugging'
+
+      if (value.includes('review')) return 'review'
+
+      return null
+    }
+
+    function updateAgentPipeline(currentStage, status, progress) {
+      const resolvedStage =
+        currentStage || inferStageFromProgress(progress)
+
+      const activeIndex =
+        stageOrder.indexOf(resolvedStage)
+
+      agentSteps.forEach((step) => {
+        step.classList.remove('active', 'completed')
+
+        const stepIndex =
+          stageOrder.indexOf(step.dataset.stage)
+
+        if (status === 'COMPLETED') {
+          step.classList.add('completed')
+          return
+        }
+
+        if (
+          status === 'RUNNING' &&
+          step.dataset.stage === resolvedStage
+        ) {
+          step.classList.add('active')
+          return
+        }
+
+        if (
+          status === 'RUNNING' &&
+          activeIndex !== -1 &&
+          stepIndex < activeIndex
+        ) {
+          step.classList.add('completed')
+        }
+      })
+    }
+
+    async function refreshJobStatus() {
+      try {
+        const response = await fetch(`/api/jobs/${jobId}`, {
+          cache: 'no-store'
+        })
+
+        if (!response.ok) {
+          throw new Error(`Status request failed: ${response.status}`)
+        }
+
+        const job = await response.json()
+
+        statusName.textContent = job.status
+        progressMessage.textContent =
+          job.progress || 'Waiting for an update...'
+
+        setStatusClass(job.status)
+
+        updateAgentPipeline(
+          job.current_stage || null,
+          job.status,
+          job.progress || ''
+        )
+
+        if (job.status === 'COMPLETED') {
+          spinner.classList.add('hidden')
+          progressBar.classList.add('hidden')
+          downloadButton.classList.remove('hidden')
+
+          if (job.reports_download_available) {
+            reportsDownloadButton.classList.remove('hidden')
+          }
+
+          clearInterval(pollingTimer)
+        }
+
+        if (job.status === 'FAILED') {
+          spinner.classList.add('hidden')
+          progressBar.classList.add('hidden')
+
+          errorBox.textContent =
+            job.error_message ||
+            'The generation job failed. Check the application logs.'
+
+          errorBox.classList.add('show')
+          clearInterval(pollingTimer)
+        }
+      } catch (error) {
+        console.error(error)
+        progressMessage.textContent =
+          'Unable to refresh status. Retrying automatically...'
+      }
+    }
+
+    refreshJobStatus()
+
+    pollingTimer = setInterval(
+      refreshJobStatus,
+      3000
+    )
+  </script>
+</body>
+</html>

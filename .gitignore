@@ -1,12 +1,31 @@
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
 .venv/
 venv/
-__pycache__/
-*.pyc
-outputs/*
-!outputs/.gitkeep
-memory/
-*.db
-*.sqlite3
+env/
+
+# Generated output
+outputs/
+*.zip
+
+# IDE and operating system
+.vscode/
+.idea/
 .DS_Store
-.pytest_cache/
+Thumbs.db
+
+# Logs
+*.log
